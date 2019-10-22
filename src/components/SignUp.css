@@ -1,0 +1,10 @@
+@media only screen and (max-width: 501px) {
+    .SignUp-paper-2 {
+        width:90% !important
+    }
+}
+
+.SignUp-paper-2 {
+    position: relative !important;
+    margin: 64px auto !important;
+}
