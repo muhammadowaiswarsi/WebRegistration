@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-// import Checkbox from '@material-ui/core/Checkbox';
+import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 // import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
@@ -69,6 +69,7 @@ class SignUp extends Component {
 			schoolName: 'Select School Name',
 			errorMessage: '',
 			valueArray: [],
+			SchoolCheckArray: [],
 		};
 	}
 
@@ -92,6 +93,7 @@ class SignUp extends Component {
 		});
 	};
 	handleSubmit = e => {
+		let { SchoolCheckArray } = this.state
 		e.preventDefault();
 		if (this.state.schoolName !== 'Select School Name') {
 			let { name, email, password, contact, type, schoolName } = this.state;
@@ -113,8 +115,8 @@ class SignUp extends Component {
 						.then(() => {
 							firebase
 								.database()
-								.ref(school_name + '/UserData/' + uid)
-								.set({ username: name, email: email, password: password, contact: contact, type: type })
+								.ref(`ParentAllSchool${uid}`)
+								.set(JSON.stringify(SchoolCheckArray))
 								.then(() => {
 									firebase
 										.database()
@@ -126,23 +128,28 @@ class SignUp extends Component {
 												.ref('/UserContact/' + contact)
 												.set({ email: email })
 												.then(() => {
-													this.setState({
-														name: '',
-														email: '',
-														password: '',
-														contact: '',
-														type: '',
-														schoolName: 'Select School Name',
-													});
+													if (SchoolCheckArray.length) {
+														SchoolCheckArray.map(school => {
+															firebase.database().ref(`${school}/UserData/${uid}`)
+																.set({ username: name, email: email, password: password, contact: contact, type: type })
+														})
+														this.setState({
+															name: '',
+															email: '',
+															password: '',
+															contact: '',
+															type: '',
+															schoolName: 'Select School Name',
+														});
+													} else {
+														this.setState({ errorMessage: 'Please select any school before submit' });
+													}
 												});
 										})
 										.catch(err => {
 											return this.setState({ errorMessage: err.message });
 										});
 								})
-								.catch(err => {
-									return this.setState({ errorMessage: err.message });
-								});
 						});
 				})
 				.catch(err => {
@@ -155,6 +162,12 @@ class SignUp extends Component {
 	// handleClose = () => {
 	// 	this.setState({ open: false, errorMessage: '' });
 	// };
+
+	handleSchoolCheck = (schoolName) => {
+		let { SchoolCheckArray } = this.state
+		SchoolCheckArray.push(schoolName)
+		this.setState({ SchoolCheckArray })
+	}
 
 	render() {
 		const { classes } = this.props;
@@ -251,12 +264,15 @@ class SignUp extends Component {
 									</MenuItem>
 									{this.state.valueArray.length
 										? this.state.valueArray.map((e, index) => {
-												return (
+											return (
+												<FormControl>
 													<MenuItem key={index} lebel={e.SchoolName} value={e.SchoolName}>
 														{e.SchoolName}
 													</MenuItem>
-												);
-										  })
+													<Checkbox onChange={this.handleSchoolCheck(e.schoolName)} value={e.schoolName} />
+												</FormControl>
+											);
+										})
 										: ''}
 								</Select>
 							</FormControl>
