@@ -92,9 +92,10 @@ class SignUp extends Component {
 			errorMessage: '',
 		});
 	};
-	handleSubmit = e => {
-		let { SchoolCheckArray } = this.state
-		e.preventDefault();
+
+
+	handleSubmit = (e) => {
+		e.preventDefault()
 		if (this.state.schoolName !== 'Select School Name') {
 			let { name, email, password, contact, type, schoolName } = this.state;
 			let school_name = schoolName.replace(/ /g, '_');
@@ -102,204 +103,240 @@ class SignUp extends Component {
 			let contactSplit = contact.split('');
 			contactSplit.splice(0, 2, '+');
 			contact = contactSplit.join('');
-			firebase
-				.auth()
-				.createUserWithEmailAndPassword(email, password)
+			firebase.auth().createUserWithEmailAndPassword(email, password)
 				.then(response => {
-					this.setState({ errorMessage: 'Successfully Created Acount' });
+					this.setState({ errorMessage: 'Successfully Created Acount' })
 					const uid = response.user.uid;
-					firebase
-						.database()
-						.ref(`AllSchools/${uid}`)
+					firebase.database().ref(`AllSchools/${uid}`)
 						.set({ schoolName: school_name, uid: uid })
 						.then(() => {
 							firebase
 								.database()
-								.ref(`ParentAllSchool${uid}`)
-								.set(JSON.stringify(SchoolCheckArray))
+								.ref('/UserName/' + name)
+								.set({ email: email, uid: uid })
 								.then(() => {
 									firebase
 										.database()
-										.ref('/UserName/' + name)
-										.set({ email: email })
+										.ref('/UserContact/' + contact)
+										.set({ email: email, uid: uid })
 										.then(() => {
-											firebase
-												.database()
-												.ref('/UserContact/' + contact)
-												.set({ email: email })
-												.then(() => {
-													if (SchoolCheckArray.length) {
-														SchoolCheckArray.map(school => {
-															firebase.database().ref(`${school}/UserData/${uid}`)
-																.set({ username: name, email: email, password: password, contact: contact, type: type })
-														})
-														this.setState({
-															name: '',
-															email: '',
-															password: '',
-															contact: '',
-															type: '',
-															schoolName: 'Select School Name',
-														});
-													} else {
-														this.setState({ errorMessage: 'Please select any school before submit' });
-													}
-												});
+											firebase.database().ref(`${schoolName}/UserData/${uid}`)
+												.set({ username: name, email: email, password: password, contact: contact, type: type })
+											this.setState({
+												name: '',
+												email: '',
+												password: '',
+												contact: '',
+												type: '',
+												schoolName: 'Select School Name',
+											})
+										}).catch(err => {
+											return this.setState({ errorMessage: err.message })
 										})
-										.catch(err => {
-											return this.setState({ errorMessage: err.message });
-										});
+								}).catch(err => {
+									return this.setState({ errorMessage: err.message })
 								})
-						});
+						}).catch(err => {
+							return this.setState({ errorMessage: err.message })
+						})
+				}).catch((err) => {
+					return this.setState({ errorMessage: err.message })
 				})
-				.catch(err => {
-					return this.setState({ errorMessage: err.message });
-				});
-		} else {
-			this.setState({ errorMessage: 'No School Selected' });
 		}
-	};
-	// handleClose = () => {
-	// 	this.setState({ open: false, errorMessage: '' });
-	// };
-
-	handleSchoolCheck = (schoolName) => {
-		let { SchoolCheckArray } = this.state
-		SchoolCheckArray.push(schoolName)
-		this.setState({ SchoolCheckArray })
 	}
 
-	render() {
-		const { classes } = this.props;
-		return (
-			<main className={classes.main}>
-				<main style={{ display: 'flex', justifyContent: 'center' }}>
-					<CssBaseline />
+	// handleSubmit = e => {
+	// 	let { SchoolCheckArray } = this.state
+	// 	e.preventDefault();
+	// 	if (this.state.schoolName !== 'Select School Name') {
+	// 		let { name, email, password, contact, type, schoolName } = this.state;
+	// 		let school_name = schoolName.replace(/ /g, '_');
+	// 		name = name.toLowerCase();
+	// 		let contactSplit = contact.split('');
+	// 		contactSplit.splice(0, 2, '+');
+	// 		contact = contactSplit.join('');
+	// 		firebase
+	// 			.auth()
+	// 			.createUserWithEmailAndPassword(email, password)
+	// 			.then(response => {
+	// 				this.setState({ errorMessage: 'Successfully Created Acount' });
+	// 				const uid = response.user.uid;
+	// 				firebase
+	// 					.database()
+	// 					.ref(`AllSchools/${uid}`)
+	// 					.set({ schoolName: school_name, uid: uid })
+	// 					.then(() => {
+	// 						firebase
+	// 							.database()
+	// 							.ref('/UserName/' + name)
+	// 							.set({ email: email, uid: uid })
+	// 							.then(() => {
+	// 								firebase
+	// 									.database()
+	// 									.ref('/UserContact/' + contact)
+	// 									.set({ email: email })
+	// 									.then(() => {
+	// 										firebase.database().ref(`${school}/UserData/${uid}`)
+	// 											.set({ username: name, email: email, password: password, contact: contact, type: type })
+	// 										this.setState({
+	// 											name: '',
+	// 											email: '',
+	// 											password: '',
+	// 											contact: '',
+	// 											type: '',
+	// 											schoolName: 'Select School Name',
+	// 										});
+	// 									})
+	// 							});
+	// 					})
+	// 					.catch(err => {
+	// 						return this.setState({ errorMessage: err.message });
+	// 					});
+	// 			});
+	// 	})
+	// 			.catch (err => {
+	// 		return this.setState({ errorMessage: err.message });
+	// 	});
+	// }
+// };
+// handleClose = () => {
+// 	this.setState({ open: false, errorMessage: '' });
+// };
 
-					<Paper className={classes.paper}>
-						<Typography component="h1" variant="h5">
-							Sign Up
+handleSchoolCheck = (schoolName) => {
+	let { SchoolCheckArray } = this.state
+	SchoolCheckArray.push(schoolName)
+	this.setState({ SchoolCheckArray })
+}
+
+render() {
+	const { classes } = this.props;
+	return (
+		<main className={classes.main}>
+			<main style={{ display: 'flex', justifyContent: 'center' }}>
+				<CssBaseline />
+
+				<Paper className={classes.paper}>
+					<Typography component="h1" variant="h5">
+						Sign Up
 						</Typography>
-						<form className={classes.form} onSubmit={e => this.handleSubmit(e)}>
-							<FormControl margin="normal" required fullWidth>
-								<InputLabel htmlFor="name">User Name:</InputLabel>
-								<Input
-									name="name"
-									type="name"
-									id="name"
-									autoComplete="current-password"
-									value={this.state.name}
-									onChange={e => this.handleChange(e)}
-									required
-								/>
-							</FormControl>
-							<FormControl margin="normal" required fullWidth>
-								<InputLabel htmlFor="email">Email Address:</InputLabel>
-								<Input
-									id="email"
-									name="email"
-									autoComplete="email"
-									value={this.state.email}
-									onChange={e => this.handleChange(e)}
-									required
-								/>
-							</FormControl>
-							<FormControl margin="normal" required fullWidth>
-								<InputLabel htmlFor="password">Password:</InputLabel>
-								<Input
-									name="password"
-									type="password"
-									id="password"
-									autoComplete="current-password"
-									value={this.state.password}
-									onChange={e => this.handleChange(e)}
-									required
-								/>
-							</FormControl>
-							<FormControl>
-								<RadioGroup
-									onChange={e => this.handleChange(e)}
-									value={this.state.type}
-									name="type"
-									required
-								>
-									<FormControlLabel value="Parent" control={<Radio />} label="Parent" />
-									<FormControlLabel value="Teacher" control={<Radio />} label="Teacher" />
-								</RadioGroup>
-							</FormControl>
-							<FormControl margin="normal" required fullWidth>
-								<InputLabel htmlFor="contact">Contact No:</InputLabel>
-								<Input
-									name="contact"
-									type="text"
-									placeholder="+44...."
-									id="contact"
-									autoComplete="current-password"
-									value={this.state.contact}
-									onChange={e => {
-										if (this.state.contact.length === 1 || this.state.contact.length === 0) {
-											this.setState({
-												contact:
-													e.target.value.charCodeAt(this.state.contact.length) === 48
-														? e.target.value
-														: this.state.contact,
-											});
-										} else {
-											this.setState({
-												contact: !isNaN(e.target.value) ? e.target.value : this.state.contact,
-											});
-										}
-									}}
-									required
-								/>
-							</FormControl>
-							<FormControl margin="normal" required fullWidth>
-								<Select
-									value={this.state.schoolName}
-									onChange={e => this.handleChange(e)}
-									name="schoolName"
-								>
-									<MenuItem value="Select School Name" selected>
-										Select School Name
-									</MenuItem>
-									{this.state.valueArray.length
-										? this.state.valueArray.map((e, index) => {
-											return (
-												<FormControl>
-													<MenuItem key={index} lebel={e.SchoolName} value={e.SchoolName}>
-														{e.SchoolName}
-													</MenuItem>
-													<Checkbox onChange={this.handleSchoolCheck(e.schoolName)} value={e.schoolName} />
-												</FormControl>
-											);
-										})
-										: ''}
-								</Select>
-							</FormControl>
-							<Button
-								type="submit"
-								fullWidth
-								variant="contained"
-								color="primary"
-								className={classes.submit}
+					<form className={classes.form} onSubmit={e => this.handleSubmit(e)}>
+						<FormControl margin="normal" required fullWidth>
+							<InputLabel htmlFor="name">User Name:</InputLabel>
+							<Input
+								name="name"
+								type="name"
+								id="name"
+								autoComplete="current-password"
+								value={this.state.name}
+								onChange={e => this.handleChange(e)}
+								required
+							/>
+						</FormControl>
+						<FormControl margin="normal" required fullWidth>
+							<InputLabel htmlFor="email">Email Address:</InputLabel>
+							<Input
+								id="email"
+								name="email"
+								autoComplete="email"
+								value={this.state.email}
+								onChange={e => this.handleChange(e)}
+								required
+							/>
+						</FormControl>
+						<FormControl margin="normal" required fullWidth>
+							<InputLabel htmlFor="password">Password:</InputLabel>
+							<Input
+								name="password"
+								type="password"
+								id="password"
+								autoComplete="current-password"
+								value={this.state.password}
+								onChange={e => this.handleChange(e)}
+								required
+							/>
+						</FormControl>
+						<FormControl>
+							<RadioGroup
+								onChange={e => this.handleChange(e)}
+								value={this.state.type}
+								name="type"
+								required
 							>
-								Sign Up
-							</Button>
-						</form>
-						<div>
-							<p
-								style={{
-									color: this.state.errorMessage === 'Successfully Created Acount' ? 'green' : 'red',
+								<FormControlLabel value="Parent" control={<Radio />} label="Parent" />
+								<FormControlLabel value="Teacher" control={<Radio />} label="Teacher" />
+							</RadioGroup>
+						</FormControl>
+						<FormControl margin="normal" required fullWidth>
+							<InputLabel htmlFor="contact">Contact No:</InputLabel>
+							<Input
+								name="contact"
+								type="text"
+								placeholder="+44...."
+								id="contact"
+								autoComplete="current-password"
+								value={this.state.contact}
+								onChange={e => {
+									if (this.state.contact.length === 1 || this.state.contact.length === 0) {
+										this.setState({
+											contact:
+												e.target.value.charCodeAt(this.state.contact.length) === 48
+													? e.target.value
+													: this.state.contact,
+										});
+									} else {
+										this.setState({
+											contact: !isNaN(e.target.value) ? e.target.value : this.state.contact,
+										});
+									}
 								}}
+								required
+							/>
+						</FormControl>
+						<FormControl margin="normal" required fullWidth>
+							<Select
+								value={this.state.schoolName}
+								onChange={e => this.handleChange(e)}
+								name="schoolName"
 							>
-								{this.state.errorMessage}
-							</p>
-						</div>
-					</Paper>
-				</main>
+								<MenuItem value="Select School Name" selected>
+									Select School Name
+									</MenuItem>
+								{this.state.valueArray.length
+									? this.state.valueArray.map((e, index) => {
+										return (
+											<MenuItem key={index} lebel={e.SchoolName} value={e.SchoolName}>
+												{e.SchoolName}
+											</MenuItem>
+										);
+									})
+									: ''}
+							</Select>
+						</FormControl>
+						<Button
+							type="submit"
+							fullWidth
+							variant="contained"
+							color="primary"
+							className={classes.submit}
+						>
+							Sign Up
+							</Button>
+					</form>
+					<div>
+						<p
+							style={{
+								color: this.state.errorMessage === 'Successfully Created Acount' ? 'green' : 'red',
+							}}
+						>
+							{this.state.errorMessage}
+						</p>
+					</div>
+				</Paper>
 			</main>
-		);
-	}
+		</main>
+	);
+}
 }
 
 export default withStyles(styles)(SignUp);
