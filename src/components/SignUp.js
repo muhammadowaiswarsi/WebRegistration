@@ -121,7 +121,7 @@ class SignUp extends Component {
 										.set({ email: email, uid: uid })
 										.then(() => {
 											firebase.database().ref(`${schoolName}/UserData/${uid}`)
-												.set({ username: name, email: email, password: password, contact: contact, type: type })
+												.set({ username: name, email: email, password: password, contact: contact, type: type, user_id: uid })
 											this.setState({
 												name: '',
 												email: '',
@@ -198,145 +198,145 @@ class SignUp extends Component {
 	// 		return this.setState({ errorMessage: err.message });
 	// 	});
 	// }
-// };
-// handleClose = () => {
-// 	this.setState({ open: false, errorMessage: '' });
-// };
+	// };
+	// handleClose = () => {
+	// 	this.setState({ open: false, errorMessage: '' });
+	// };
 
-handleSchoolCheck = (schoolName) => {
-	let { SchoolCheckArray } = this.state
-	SchoolCheckArray.push(schoolName)
-	this.setState({ SchoolCheckArray })
-}
+	handleSchoolCheck = (schoolName) => {
+		let { SchoolCheckArray } = this.state
+		SchoolCheckArray.push(schoolName)
+		this.setState({ SchoolCheckArray })
+	}
 
-render() {
-	const { classes } = this.props;
-	return (
-		<main className={classes.main}>
-			<main style={{ display: 'flex', justifyContent: 'center' }}>
-				<CssBaseline />
+	render() {
+		const { classes } = this.props;
+		return (
+			<main className={classes.main}>
+				<main style={{ display: 'flex', justifyContent: 'center' }}>
+					<CssBaseline />
 
-				<Paper className={classes.paper}>
-					<Typography component="h1" variant="h5">
-						Sign Up
-						</Typography>
-					<form className={classes.form} onSubmit={e => this.handleSubmit(e)}>
-						<FormControl margin="normal" required fullWidth>
-							<InputLabel htmlFor="name">User Name:</InputLabel>
-							<Input
-								name="name"
-								type="name"
-								id="name"
-								autoComplete="current-password"
-								value={this.state.name}
-								onChange={e => this.handleChange(e)}
-								required
-							/>
-						</FormControl>
-						<FormControl margin="normal" required fullWidth>
-							<InputLabel htmlFor="email">Email Address:</InputLabel>
-							<Input
-								id="email"
-								name="email"
-								autoComplete="email"
-								value={this.state.email}
-								onChange={e => this.handleChange(e)}
-								required
-							/>
-						</FormControl>
-						<FormControl margin="normal" required fullWidth>
-							<InputLabel htmlFor="password">Password:</InputLabel>
-							<Input
-								name="password"
-								type="password"
-								id="password"
-								autoComplete="current-password"
-								value={this.state.password}
-								onChange={e => this.handleChange(e)}
-								required
-							/>
-						</FormControl>
-						<FormControl>
-							<RadioGroup
-								onChange={e => this.handleChange(e)}
-								value={this.state.type}
-								name="type"
-								required
-							>
-								<FormControlLabel value="Parent" control={<Radio />} label="Parent" />
-								<FormControlLabel value="Teacher" control={<Radio />} label="Teacher" />
-							</RadioGroup>
-						</FormControl>
-						<FormControl margin="normal" required fullWidth>
-							<InputLabel htmlFor="contact">Contact No:</InputLabel>
-							<Input
-								name="contact"
-								type="text"
-								placeholder="+44...."
-								id="contact"
-								autoComplete="current-password"
-								value={this.state.contact}
-								onChange={e => {
-									if (this.state.contact.length === 1 || this.state.contact.length === 0) {
-										this.setState({
-											contact:
-												e.target.value.charCodeAt(this.state.contact.length) === 48
-													? e.target.value
-													: this.state.contact,
-										});
-									} else {
-										this.setState({
-											contact: !isNaN(e.target.value) ? e.target.value : this.state.contact,
-										});
-									}
-								}}
-								required
-							/>
-						</FormControl>
-						<FormControl margin="normal" required fullWidth>
-							<Select
-								value={this.state.schoolName}
-								onChange={e => this.handleChange(e)}
-								name="schoolName"
-							>
-								<MenuItem value="Select School Name" selected>
-									Select School Name
-									</MenuItem>
-								{this.state.valueArray.length
-									? this.state.valueArray.map((e, index) => {
-										return (
-											<MenuItem key={index} lebel={e.SchoolName} value={e.SchoolName}>
-												{e.SchoolName}
-											</MenuItem>
-										);
-									})
-									: ''}
-							</Select>
-						</FormControl>
-						<Button
-							type="submit"
-							fullWidth
-							variant="contained"
-							color="primary"
-							className={classes.submit}
-						>
+					<Paper className={classes.paper}>
+						<Typography component="h1" variant="h5">
 							Sign Up
+						</Typography>
+						<form className={classes.form} onSubmit={e => this.handleSubmit(e)}>
+							<FormControl margin="normal" required fullWidth>
+								<InputLabel htmlFor="name">User Name:</InputLabel>
+								<Input
+									name="name"
+									type="name"
+									id="name"
+									autoComplete="current-password"
+									value={this.state.name}
+									onChange={e => this.handleChange(e)}
+									required
+								/>
+							</FormControl>
+							<FormControl margin="normal" required fullWidth>
+								<InputLabel htmlFor="email">Email Address:</InputLabel>
+								<Input
+									id="email"
+									name="email"
+									autoComplete="email"
+									value={this.state.email}
+									onChange={e => this.handleChange(e)}
+									required
+								/>
+							</FormControl>
+							<FormControl margin="normal" required fullWidth>
+								<InputLabel htmlFor="password">Password:</InputLabel>
+								<Input
+									name="password"
+									type="password"
+									id="password"
+									autoComplete="current-password"
+									value={this.state.password}
+									onChange={e => this.handleChange(e)}
+									required
+								/>
+							</FormControl>
+							<FormControl>
+								<RadioGroup
+									onChange={e => this.handleChange(e)}
+									value={this.state.type}
+									name="type"
+									required
+								>
+									<FormControlLabel value="Parent" control={<Radio />} label="Parent" />
+									<FormControlLabel value="Teacher" control={<Radio />} label="Teacher" />
+								</RadioGroup>
+							</FormControl>
+							<FormControl margin="normal" required fullWidth>
+								<InputLabel htmlFor="contact">Contact No:</InputLabel>
+								<Input
+									name="contact"
+									type="text"
+									placeholder="+44...."
+									id="contact"
+									autoComplete="current-password"
+									value={this.state.contact}
+									onChange={e => {
+										if (this.state.contact.length === 1 || this.state.contact.length === 0) {
+											this.setState({
+												contact:
+													e.target.value.charCodeAt(this.state.contact.length) === 48
+														? e.target.value
+														: this.state.contact,
+											});
+										} else {
+											this.setState({
+												contact: !isNaN(e.target.value) ? e.target.value : this.state.contact,
+											});
+										}
+									}}
+									required
+								/>
+							</FormControl>
+							<FormControl margin="normal" required fullWidth>
+								<Select
+									value={this.state.schoolName}
+									onChange={e => this.handleChange(e)}
+									name="schoolName"
+								>
+									<MenuItem value="Select School Name" selected>
+										Select School Name
+									</MenuItem>
+									{this.state.valueArray.length
+										? this.state.valueArray.map((e, index) => {
+											return (
+												<MenuItem key={index} lebel={e.SchoolName} value={e.SchoolName}>
+													{e.SchoolName}
+												</MenuItem>
+											);
+										})
+										: ''}
+								</Select>
+							</FormControl>
+							<Button
+								type="submit"
+								fullWidth
+								variant="contained"
+								color="primary"
+								className={classes.submit}
+							>
+								Sign Up
 							</Button>
-					</form>
-					<div>
-						<p
-							style={{
-								color: this.state.errorMessage === 'Successfully Created Acount' ? 'green' : 'red',
-							}}
-						>
-							{this.state.errorMessage}
-						</p>
-					</div>
-				</Paper>
+						</form>
+						<div>
+							<p
+								style={{
+									color: this.state.errorMessage === 'Successfully Created Acount' ? 'green' : 'red',
+								}}
+							>
+								{this.state.errorMessage}
+							</p>
+						</div>
+					</Paper>
+				</main>
 			</main>
-		</main>
-	);
-}
+		);
+	}
 }
 
 export default withStyles(styles)(SignUp);
